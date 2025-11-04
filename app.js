@@ -13,7 +13,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 app.use(session({
-  secret: "mySecretKey",      // any random string
+  secret: "mySecretKey",
   resave: false,
   saveUninitialized: true
 }));
