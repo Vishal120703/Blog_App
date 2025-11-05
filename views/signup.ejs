@@ -1,15 +1,68 @@
-<!DOCTYPE html>
-<html>
-<head><title>Signup</title></head>
-<body>
-    <h2>Signup</h2>
+<%- include('element/header') %>
+<%- include('element/navbar') %>
+
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+  <div class="card shadow-lg p-4" style="width: 400px;">
+    <h3 class="text-center mb-4 text-primary">SignUp</h3>
+
     <form action="/user/signup" method="POST">
-        <input type="text" name="name" placeholder="Enter your name" required><br><br>
-        <input type="text" name="username" placeholder="Enter username" required><br><br>
-        <input type="email" name="email" placeholder="Enter email" required><br><br>
-        <input type="password" name="password" placeholder="Enter password" required><br><br>
-        <button type="submit">Signup</button>
+        <!-- name -->
+        <div class="mb-3">
+        <label for="name" class="form-label">Username</label>
+        <input 
+          type="text" 
+          class="form-control" 
+          id="name" 
+          name="name" 
+          placeholder="Enter your Name"
+          required>
+      </div>
+      <!-- Username -->
+      <div class="mb-3">
+        <label for="username" class="form-label">Username</label>
+        <input 
+          type="text" 
+          class="form-control" 
+          id="username" 
+          name="username" 
+          placeholder="Enter your username"
+          required>
+      </div>
+      <!-- email -->
+       <div class="mb-3">
+        <label for="email" class="form-label">Password</label>
+        <input 
+          type="email" 
+          class="form-control" 
+          id="email" 
+          name="email" 
+          placeholder="Enter your Email"
+          required>
+      </div>
+
+      <!-- Password -->
+      <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input 
+          type="password" 
+          class="form-control" 
+          id="password" 
+          name="password" 
+          placeholder="Enter your password"
+          required>
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" class="btn btn-primary w-100">Login</button>
+
+      <!-- Register Link -->
+      <p class="text-center mt-3">
+        have an account Already? 
+        <a href="/user/login" class="text-decoration-none">Login</a>
+      </p>
     </form>
-    <p>Already have an account? <a href="/login">Login</a></p>
-</body>
-</html>
+  </div>
+</div>
+
+<%- include('element/footer') %>
+

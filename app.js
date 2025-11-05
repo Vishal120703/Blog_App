@@ -1,29 +1,42 @@
-const express = require("express")
-const app = express()
-const port = 3000
+const express = require("express");
+const path = require("path");
 const session = require("express-session");
-const connectDB = require("./config/dbConnect")
 const cookieParser = require("cookie-parser");
-const fileData = require("./routes/allFiles")
 
-connectDB()
-const userRoute = require("./routes/users")
-app.set("view engine","ejs")
-app.use(express.urlencoded({ extended: true })); 
+// Import custom modules
+const connectDB = require("./config/dbConnect");
+const homeRouter = require("./routes/home");
+const userRoute = require("./routes/users");
+const fileData = require("./routes/allFiles");
+
+// Initialize app and environment setup
+const app = express();
+const port = 3000;
+
+// Connect to MongoDB
+connectDB();
+
+// Set EJS as the template engine
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+
+// Middleware
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(
+  session({
+    secret: "mySecretKey",
+    resave: false,
+    saveUninitialized: true,
+  })
+);
 
-app.use(session({
-  secret: "mySecretKey",
-  resave: false,
-  saveUninitialized: true
-}));
+// Routes
+app.use("/", homeRouter);
+app.use("/user", userRoute);
+app.use("/user/dashboard", fileData);
 
-app.get("/",(req,res)=>{
-    res.send("hello world")
-})
-app.use("/user",userRoute)
-app.use("/user/dashboard/",fileData)
-
-app.listen(port,(req,res)=>{
-    console.log(`the port is running on : ${port}`)
-})
+// Start the server
+app.listen(port, () => {
+  console.log(`Server running on http://localhost:${port}`);
+});
