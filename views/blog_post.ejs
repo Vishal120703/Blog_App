@@ -1,0 +1,64 @@
+<%- include('element/header')%>
+<%- include('element/navbar')%>
+<div class="container py-5">
+  <div class="card shadow-lg p-4 mx-auto" style="max-width: 750px;">
+    <h2 class="text-center mb-4 text-primary">Create a New Blog Post</h2>
+
+    <form action="/user/dashboard/post" method="POST" enctype="multipart/form-data">
+      
+      <!-- Title -->
+      <div class="mb-3">
+        <label for="title" class="form-label">Title</label>
+        <input 
+          type="text" 
+          class="form-control" 
+          id="title" 
+          name="title" 
+          placeholder="Enter blog title"
+          required>
+      </div>
+
+      <!-- Category -->
+      <div class="mb-3">
+        <label for="category" class="form-label">Category</label>
+        <select class="form-select" id="category" name="category" required>
+          <option value="">Select category</option>
+          <option value="Technology">Technology</option>
+          <option value="Lifestyle">Lifestyle</option>
+          <option value="Education">Education</option>
+          <option value="Health">Health</option>
+          <option value="Travel">Travel</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <!-- Image -->
+      <div class="mb-3">
+        <label for="image" class="form-label">Cover Image</label>
+        <input 
+          type="file" 
+          class="form-control" 
+          id="image" 
+          name="image" 
+          accept="image/*">
+      </div>
+
+      <!-- Content -->
+      <div class="mb-3">
+        <label for="content" class="form-label">Blog Content</label>
+        <textarea 
+          class="form-control" 
+          id="content" 
+          name="content" 
+          rows="10" 
+          placeholder="Write your blog content here..."
+          required></textarea>
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" class="btn btn-success w-100">Publish Blog</button>
+    </form>
+  </div>
+</div>
+
+<%- include('element/footer')%>
