@@ -4,11 +4,12 @@ const multer = require("multer");
 const path = require("path");
 const logger = require("../middleware/loggerMiddleware"); 
 const Blog = require("../models/postData");
+const fs = require("fs")
 
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, "uploads/"),
-  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname)),
+  destination: (req, file, cb) => cb(null, 'uploads/'),
+  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
 });
 const upload = multer({ storage });
 
@@ -19,22 +20,22 @@ router.get("/post", logger, (req, res) => {
 });
 
 
-router.post("/post", upload.none(), logger, async (req, res) => {
+router.post("/post", upload.single('image'), logger, async (req, res) => {
   try {
     const { title, category, content } = req.body;
+    const imagePath =  req.file ? `/uploads/${req.file.filename}` : null
     const author = req.user.username; 
-    console.log("Author:", author);
 
     const newBlog = new Blog({
-      title,
-      category,
-      content,
-      author,
+      title:title,
+      category:category,
+      image:imagePath,
+      content:content,
+      auther:author,
       date: new Date(),
     });
-    console.log(newBlog)
 
-    // await newBlog.save();
+    await newBlog.save();
     res.redirect("/user/dashboard");
   } catch (err) {
     console.error(err);

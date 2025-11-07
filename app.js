@@ -8,6 +8,7 @@ const connectDB = require("./config/dbConnect");
 const homeRouter = require("./routes/home");
 const userRoute = require("./routes/users");
 const fileData = require("./routes/allFiles");
+const fs = require("fs")
 
 // Initialize app and environment setup
 const app = express(); 
@@ -31,6 +32,11 @@ app.use(
     saveUninitialized: true,
   })
 );
+
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
 
 // Routes
 app.use("/", homeRouter);
