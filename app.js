@@ -10,7 +10,7 @@ const userRoute = require("./routes/users");
 const fileData = require("./routes/allFiles");
 
 // Initialize app and environment setup
-const app = express();
+const app = express(); 
 const port = 3000;
 
 // Connect to MongoDB
@@ -22,6 +22,7 @@ app.set("views", path.join(__dirname, "views"));
 
 // Middleware
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(cookieParser());
 app.use(
   session({
