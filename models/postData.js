@@ -5,6 +5,14 @@ const postData = mongoose.Schema({
     image:{type:String},
     content : {type:String,required:true},
     auther:{type:String,required:true},
-    date:{type:Date,default:Date.now}
+    date:{type:Date,default:Date.now},
+    views:{type:Number,default:0},
+    likes:{type:Number,default:0},
+    comments:{
+        user : String,
+        text : String,
+        date :{type:Date,default : Date.now}
+    }
+
 })
 module.exports = mongoose.model("Blog",postData);
