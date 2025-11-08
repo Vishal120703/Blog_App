@@ -8,6 +8,7 @@ const connectDB = require("./config/dbConnect");
 const homeRouter = require("./routes/home");
 const userRoute = require("./routes/users");
 const fileData = require("./routes/allFiles");
+const aboutPage = require("./routes/about")
 const fs = require("fs")
 
 // Initialize app and environment setup
@@ -40,6 +41,7 @@ if (!fs.existsSync(uploadDir)) {
 
 // Routes
 app.use("/", homeRouter);
+app.use("/about",aboutPage)
 app.use("/user", userRoute);
 app.use("/user/dashboard", fileData);
 
