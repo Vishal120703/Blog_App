@@ -1,6 +1,30 @@
 <%- include('element/header') %>
 <%- include('element/navbar') %>
 
-<a href="/blog_post" class="btn btn-primary">Primary</a>
+<!-- <a href="/blog_post" class="btn btn-primary">Primary</a> -->
+<div class="row">
+    <% if (blogs.length === 0) { %>
+      <p class="text-center text-muted">No blogs posted yet.</p>
+    <% } %>
+
+    <% blogs.forEach(blog => { %>
+      <div class="col-md-4 mb-4">
+        <div class="card shadow-sm h-100">
+          <% if (blog.image) { %>
+            <img src="<%= blog.image %>" class="card-img-top" alt="Blog Image">
+          <% } else { %>
+            <img src="/default.jpg" class="card-img-top" alt="Default">
+          <% } %>
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title text-primary"><%= blog.title %></h5>
+            <p class="card-text text-truncate"><%= blog.content.substring(0, 100) %>...</p>
+            <p class="text-muted mb-1"><small>By <%= blog.auther %></small></p>
+            <a href="/post/<%= blog._id %>" class="btn btn-outline-primary mt-auto">Read More</a>
+          </div>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+</section>
 
 <%- include('element/footer') %>
