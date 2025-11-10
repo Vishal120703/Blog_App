@@ -5,7 +5,6 @@ const logger = require("../middleware/loggerMiddleware")
 
 router.get("/",async(req,res)=>{
     const blogs = await Blog.find();
-    console.log(blogs)
     res.render("index.ejs",{blogs})
 })
 
@@ -31,6 +30,7 @@ router.post("/post/:id/like", logger, async (req, res) => {
       blog.likedBy.push(user);
       console.log("User liked this post");
     }
+    blog.likes = blog.likedBy.length
 
     await blog.save();
     res.redirect(`/post/${req.params.id}`);
