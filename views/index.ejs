@@ -27,7 +27,7 @@
           <!-- Like & View section -->
           <div class="d-flex justify-content-between align-items-center text-muted mt-2 mb-3">
             <span>❤️ <%= blog.likes || 0 %> Likes</span>
-            <span>👁️ <%= blog.views || 0 %> Views</span>
+            <span>👁️ <%= blog.__v || 0 %> Views</span>
           </div>
 
           <a href="/post/<%= blog._id %>" class="btn btn-outline-primary mt-auto">Read More</a>
