@@ -9,6 +9,7 @@ router.get("/",async(req,res)=>{
 })
 
 router.get("/post/:id",logger,async(req,res)=>{
+    await Blog.findByIdAndUpdate(req.params.id, { $inc: { views: 1 } });
     const blog = await Blog.findById(req.params.id);
     res.render("single_post.ejs",{blog})
 })
