@@ -16,9 +16,10 @@ const postData = mongoose.Schema({
         {
     user: String,
     text: String,
-    date: { type: Date, default: Date.now }
+    
   }
-]
+],
+date: { type: Date, default: Date.now }
 
 })
 module.exports = mongoose.model("Blog",postData);

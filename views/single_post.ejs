@@ -1,25 +1,35 @@
 <%- include('element/header') %>
-  <%- include('element/navbar') %>
+<%- include('element/navbar') %>
 
-    <section class="container py-5">
-      <div class="card shadow-lg p-4 mx-auto" style="max-width: 800px;">
-        <% if (blog.image) { %>
-          <img src="<%= blog.image %>" class="img-fluid rounded mb-4" alt="Blog Image">
-          <% } %>
-            <h2 class="text-primary mb-3">
-              <%= blog.title %>
-            </h2>
-            <p class="text-muted">By <%= blog.auther %> | <%= blog.date.toDateString() %>
-            </p>
-            <hr>
-            <p class="lead text-secondary">
-              <%= blog.content %>
-            </p>
-      </div>
-      <form action="/post/<%= blog._id %>/like" method="POST" class="d-inline">
-        <button type="submit">click me!</button>
-      </form>
-    </section>
+<section class="container py-5">
+  <div class="card shadow-lg p-4 mx-auto" style="max-width: 800px;">
+    <% if (blog.image) { %>
+      <img src="<%= blog.image %>" class="img-fluid rounded mb-4" alt="Blog Image">
+    <% } %>
+    <h2 class="text-primary mb-3"><%= blog.title %></h2>
+    <p class="text-muted">By <%= blog.auther %> | <%= blog.date.toDateString() %></p>
+    <hr>
+    <p class="lead text-secondary"><%= blog.content %></p>
+  </div>
 
+  <!-- Like Button -->
+  <form action="/post/<%= blog._id %>/like" method="POST" class="d-inline">
+    <button type="submit" class="btn btn-outline-danger mt-3">❤️ Like</button>
+  </form>
 
-    <%- include('element/footer') %>
+  <!-- ✅ Comment Field -->
+  <form action="/post/<%= blog._id %>/comment" method="POST" class="mt-4">
+    <div class="mb-3">
+      <textarea
+        name="comment"
+        class="form-control"
+        rows="3"
+        placeholder="Write your comment..."
+        required
+      ></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Post Comment</button>
+  </form>
+</section>
+
+<%- include('element/footer') %>

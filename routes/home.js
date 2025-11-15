@@ -23,11 +23,9 @@ router.post("/post/:id/like", logger, async (req, res) => {
     const likedBy = blog.likedBy || [];
 
     if (likedBy.includes(user)) {
-      // User already liked → unlike (remove user)
       blog.likedBy = likedBy.filter(item => item !== user);
       console.log("User unliked this post");
     } else {
-      // User hasn't liked yet → add to likes
       blog.likedBy.push(user);
       console.log("User liked this post");
     }
@@ -40,5 +38,9 @@ router.post("/post/:id/like", logger, async (req, res) => {
     res.status(500).send("Server error");
   }
 });
+router.post("/post/:id/comment",logger,async(req,res)=>{
+  
+
+})
 
 module.exports = router;
