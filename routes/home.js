@@ -39,7 +39,24 @@ router.post("/post/:id/like", logger, async (req, res) => {
   }
 });
 router.post("/post/:id/comment",logger,async(req,res)=>{
-  
+  try{
+    const blog = await Blog.findById(req.params.id);
+    const user = req.user.username;
+    const{comment}= await req.body;
+    console.log(user)
+    console.log(comment)
+    blog.comments.push({
+      user:user,
+      text:comment
+    })
+
+    await blog.save()
+  }
+  catch(err){
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+  res.redirect(`/post/${req.params.id}`)
 
 })
 
