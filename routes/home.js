@@ -65,26 +65,32 @@ router.post("/post/:id/like", logger, async (req, res) => {
     res.status(500).json({ success: false });
   }
 });
-router.post("/post/:id/comment",logger,async(req,res)=>{
-  try{
+
+router.post("/post/:id/comment", logger, async (req, res) => {
+  try {
     const blog = await Blog.findById(req.params.id);
     const user = req.user.username;
-    const{comment}= await req.body;
-    console.log(user)
-    console.log(comment)
-    blog.comments.push({
-      user:user,
-      text:comment
-    })
+    const { comment } = req.body;
 
-    await blog.save()
-  }
-  catch(err){
+    const newComment = {
+      user: user,
+      text: comment
+    };
+
+    blog.comments.push(newComment);
+    await blog.save();
+
+    // Send JSON instead of redirect
+    res.json({
+      success: true,
+      comment: newComment
+    });
+
+  } catch (err) {
     console.error(err);
-    res.status(500).send("Server Error");
+    res.status(500).json({ success: false });
   }
-  res.redirect(`/post/${req.params.id}`)
+});
 
-})
 
 module.exports = router;

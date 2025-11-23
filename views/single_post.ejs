@@ -12,45 +12,39 @@
     <p class="lead text-secondary"><%= blog.content %></p>
   </div>
 
-  <!-- Like Button -->
-  <!-- <form action="/post/<%= blog._id %>/like" method="POST" class="d-inline">
-    <button type="submit" class="btn btn-outline-danger mt-3">❤️ Like</button>
-  </form> -->
   <button 
   id="likeBtn" 
   data-id="<%= blog._id %>" 
   class="btn btn-outline-danger mt-3">
-  ❤️ Like (<span id="likeCount"><%= blog.likes %></span>)
+  ❤️ Like(<span id="likeCount"><%= blog.likes %></span>)
 </button>
 
   <!-- ✅ Comment Field -->
-  <form action="/post/<%= blog._id %>/comment" method="POST" class="mt-4">
-    <div class="mb-3">
-      <textarea
-        name="comment"
-        id="comment"
-        class="form-control"
-        rows="3"
-        placeholder="Write your comment..."
-        required
-      ></textarea>
-    </div>
-    <button type="submit" class="btn btn-primary">Post Comment</button>
-  </form>
-  <div class="mt-5" style="max-width: 800px;">
-    <h4 class="mb-3">Comments</h4>
-
-    <% if (blog.comments && blog.comments.length > 0) { %>
-      <% blog.comments.forEach(comment => { %>
-        <div class="card p-3 mb-2 shadow-sm">
-          <strong><%= comment.user %></strong>
-          <p class="mb-1"><%= comment.text %></p>
-        </div>
-      <% }) %>
-    <% } else { %>
-      <p class="text-muted">No comments yet. Be the first to comment!</p>
-    <% } %>
+  
+  <form id="commentForm" class="mt-4">
+  <div class="mb-3">
+    <textarea
+      name="comment"
+      id="comment"
+      class="form-control"
+      rows="3"
+      placeholder="Write your comment..."
+      required
+    ></textarea>
   </div>
+  <button type="submit" class="btn btn-primary">Post Comment</button>
+</form>
+  
+  <div class="mt-5" id="commentsContainer" style="max-width: 800px;">
+  <h4 class="mb-3">Comments</h4>
+
+  <% blog.comments.forEach(comment => { %>
+    <div class="card p-3 mb-2 shadow-sm">
+      <strong><%= comment.user %></strong>
+      <p class="mb-1"><%= comment.text %></p>
+    </div>
+  <% }) %>
+</div>
 </section>
 <script>
 document.getElementById("likeBtn").addEventListener("click", async function() {
@@ -75,6 +69,41 @@ document.getElementById("likeBtn").addEventListener("click", async function() {
         } else {
             this.innerHTML = `🤍 Like (<span id="likeCount">${data.likes}</span>)`;
         }
+    }
+});
+</script>
+<script>
+document.getElementById("commentForm").addEventListener("submit", async function (e) {
+    e.preventDefault(); // stop page reload
+
+    const comment = document.getElementById("comment").value;
+    const postId = "<%= blog._id %>";
+
+    const res = await fetch(`/post/${postId}/comment`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ comment })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+        // Add new comment instantly to DOM
+        const container = document.getElementById("commentsContainer");
+
+        const newCommentHTML = `
+            <div class="card p-3 mb-2 shadow-sm">
+                <strong>${data.comment.user}</strong>
+                <p class="mb-1">${data.comment.text}</p>
+            </div>
+        `;
+
+        container.innerHTML += newCommentHTML;
+
+        // Clear textarea
+        document.getElementById("comment").value = "";
     }
 });
 </script>
