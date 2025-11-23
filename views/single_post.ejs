@@ -13,9 +13,15 @@
   </div>
 
   <!-- Like Button -->
-  <form action="/post/<%= blog._id %>/like" method="POST" class="d-inline">
+  <!-- <form action="/post/<%= blog._id %>/like" method="POST" class="d-inline">
     <button type="submit" class="btn btn-outline-danger mt-3">❤️ Like</button>
-  </form>
+  </form> -->
+  <button 
+  id="likeBtn" 
+  data-id="<%= blog._id %>" 
+  class="btn btn-outline-danger mt-3">
+  ❤️ Like (<span id="likeCount"><%= blog.likes %></span>)
+</button>
 
   <!-- ✅ Comment Field -->
   <form action="/post/<%= blog._id %>/comment" method="POST" class="mt-4">
@@ -46,5 +52,32 @@
     <% } %>
   </div>
 </section>
+<script>
+document.getElementById("likeBtn").addEventListener("click", async function() {
+    const postId = this.dataset.id;
+
+    const res = await fetch(`/post/${postId}/like`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+        // Update like count instantly
+        document.getElementById("likeCount").innerText = data.likes;
+
+        // Change button text
+        if (data.liked) {
+            this.innerHTML = `❤️ Liked (<span id="likeCount">${data.likes}</span>)`;
+        } else {
+            this.innerHTML = `🤍 Like (<span id="likeCount">${data.likes}</span>)`;
+        }
+    }
+});
+</script>
+
 
 <%- include('element/footer') %>
