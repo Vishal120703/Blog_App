@@ -14,30 +14,6 @@ router.get("/post/:id",logger,async(req,res)=>{
     res.render("single_post.ejs",{blog})
 })
 
-// router.post("/post/:id/like", logger, async (req, res) => {
-//   try {
-//     const blog = await Blog.findById(req.params.id);
-//     const user = req.user.username;
-
-//     // Initialize likedBy if it doesn't exist
-//     const likedBy = blog.likedBy || [];
-
-//     if (likedBy.includes(user)) {
-//       blog.likedBy = likedBy.filter(item => item !== user);
-//       console.log("User unliked this post");
-//     } else {
-//       blog.likedBy.push(user);
-//       console.log("User liked this post");
-//     }
-//     blog.likes = blog.likedBy.length
-
-//     await blog.save();
-//     res.redirect(`/post/${req.params.id}`);
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).send("Server error");
-//   }
-// });
 
 router.post("/post/:id/like", logger, async (req, res) => {
   try {
