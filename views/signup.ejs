@@ -1,68 +1,78 @@
 <%- include('element/header') %>
 <%- include('element/navbar') %>
 
-<div class="container d-flex justify-content-center align-items-center min-vh-100">
-  <div class="card shadow-lg p-4" style="width: 400px;">
-    <h3 class="text-center mb-4 text-primary">SignUp</h3>
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-5">
+      <div class="blog-card">
+        <div class="blog-card-body">
+          <h3 class="mb-4">Create Account</h3>
 
-    <form action="/user/signup" method="POST">
-        <!-- name -->
-        <div class="mb-3">
-        <label for="name" class="form-label">Name</label>
-        <input 
-          type="text" 
-          class="form-control" 
-          id="name" 
-          name="name" 
-          placeholder="Enter your Name"
-          required>
-      </div>
-      <!-- Username -->
-      <div class="mb-3">
-        <label for="username" class="form-label">Username</label>
-        <input 
-          type="text" 
-          class="form-control" 
-          id="username" 
-          name="username" 
-          placeholder="Enter your username"
-          required>
-      </div>
-      <!-- email -->
-       <div class="mb-3">
-        <label for="email" class="form-label">Email</label>
-        <input 
-          type="email" 
-          class="form-control" 
-          id="email" 
-          name="email" 
-          placeholder="Enter your Email"
-          required>
-      </div>
+          <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+            <div class="alert alert-danger mb-3">
+              <%= errorMessage %>
+            </div>
+          <% } %>
 
-      <!-- Password -->
-      <div class="mb-3">
-        <label for="password" class="form-label">Password</label>
-        <input 
-          type="password" 
-          class="form-control" 
-          id="password" 
-          name="password" 
-          placeholder="Enter your password"
-          required>
+          <form action="/user/signup" method="POST">
+            <div class="mb-3">
+              <label for="name" class="form-label">Full Name</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="name" 
+                name="name" 
+                placeholder="Your full name"
+                value="<%= typeof formData !== 'undefined' && formData ? formData.name : '' %>"
+                required>
+            </div>
+
+            <div class="mb-3">
+              <label for="username" class="form-label">Username</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="username" 
+                name="username" 
+                placeholder="Choose a username"
+                value="<%= typeof formData !== 'undefined' && formData ? formData.username : '' %>"
+                required>
+            </div>
+
+            <div class="mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input 
+                type="email" 
+                class="form-control" 
+                id="email" 
+                name="email" 
+                placeholder="your@email.com"
+                value="<%= typeof formData !== 'undefined' && formData ? formData.email : '' %>"
+                required>
+            </div>
+
+            <div class="mb-3">
+              <label for="password" class="form-label">Password</label>
+              <input 
+                type="password" 
+                class="form-control" 
+                id="password" 
+                name="password" 
+                placeholder="At least 6 characters"
+                required>
+              <small class="text-muted">Minimum 6 characters</small>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 mb-3">Sign Up</button>
+
+            <p class="text-center text-muted mb-0">
+              Already have an account? <a href="/user/login">Login</a>
+            </p>
+          </form>
+        </div>
       </div>
-
-      <!-- Submit Button -->
-      <button type="submit" class="btn btn-primary w-100">Login</button>
-
-      <!-- Register Link -->
-      <p class="text-center mt-3">
-        have an account Already? 
-        <a href="/user/login" class="text-decoration-none">Login</a>
-      </p>
-    </form>
+    </div>
   </div>
 </div>
 
 <%- include('element/footer') %>
-

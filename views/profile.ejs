@@ -1,0 +1,86 @@
+<%- include('element/header') %>
+<%- include('element/navbar') %>
+
+<div class="container py-4">
+  <div class="row">
+    <div class="col-md-12">
+      <!-- Profile Header -->
+      <div class="blog-card mb-4">
+        <div class="blog-card-body text-center py-4">
+          <div class="mb-3">
+            <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center" 
+                 style="width: 100px; height: 100px; font-size: 2.5rem;">
+              <i class="fas fa-user"></i>
+            </div>
+          </div>
+          <h2 class="mb-2"><%= profileUser.name %></h2>
+          <p class="text-muted mb-2">@<%= profileUser.username %></p>
+          <% if (profileUser.bio) { %>
+            <p class="text-muted"><%= profileUser.bio %></p>
+          <% } %>
+          
+          <!-- Stats -->
+          <div class="row mt-4">
+            <div class="col-md-4">
+              <div class="stat-card">
+                <div class="stat-number"><%= totalPosts %></div>
+                <div class="stat-label">Posts</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="stat-card">
+                <div class="stat-number"><%= totalViews %></div>
+                <div class="stat-label">Total Views</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="stat-card">
+                <div class="stat-number"><%= totalLikes %></div>
+                <div class="stat-label">Total Likes</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- User's Posts -->
+      <h4 class="mb-3">Posts by <%= profileUser.name %></h4>
+      <% if (posts.length === 0) { %>
+        <div class="blog-card text-center p-5">
+          <i class="fas fa-file-alt fa-3x text-muted mb-3" style="opacity: 0.3;"></i>
+          <p class="text-muted">No posts yet.</p>
+        </div>
+      <% } else { %>
+        <% posts.forEach(post => { %>
+          <div class="blog-card mb-3">
+            <% if (post.image) { %>
+              <img src="<%= post.image %>" alt="<%= post.title %>" style="height: 200px; object-fit: cover;">
+            <% } %>
+            <div class="blog-card-body">
+              <div class="mb-2">
+                <span class="badge badge-primary"><%= post.category %></span>
+              </div>
+              <h5 class="blog-card-title">
+                <a href="/post/<%= post._id %>"><%= post.title %></a>
+              </h5>
+              <p class="text-muted mb-3">
+                <%= post.excerpt || post.content.substring(0, 150) %><% if (post.content.length > 150) { %>...<% } %>
+              </p>
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="post-meta">
+                  <i class="far fa-calendar"></i> <%= new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                  <span class="ms-3"><i class="fas fa-eye"></i> <%= post.views || 0 %></span>
+                  <span class="ms-3"><i class="fas fa-heart text-danger"></i> <%= post.likes || 0 %></span>
+                </div>
+                <a href="/post/<%= post._id %>" class="btn btn-outline-primary btn-sm">Read More →</a>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<%- include('element/footer') %>
+

@@ -1,0 +1,100 @@
+<%- include('element/header')%>
+<%- include('element/navbar')%>
+<div class="container py-5">
+  <div class="card shadow-lg p-4 mx-auto" style="max-width: 750px;">
+    <h2 class="text-center mb-4 text-primary">Edit Blog Post</h2>
+
+    <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <%= errorMessage %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    <% } %>
+
+    <form action="/user/dashboard/post/edit/<%= post._id %>" method="POST" enctype="multipart/form-data">
+      
+      <!-- Title -->
+      <div class="mb-3">
+        <label for="title" class="form-label">Title</label>
+        <input 
+          type="text" 
+          class="form-control" 
+          id="title" 
+          name="title" 
+          placeholder="Enter blog title"
+          value="<%= post.title %>"
+          required>
+      </div>
+
+      <!-- Category -->
+      <div class="mb-3">
+        <label for="category" class="form-label">Category</label>
+        <select class="form-select" id="category" name="category" required>
+          <option value="">Select category</option>
+          <option value="Technology" <%= post.category === 'Technology' ? 'selected' : '' %>>Technology</option>
+          <option value="Lifestyle" <%= post.category === 'Lifestyle' ? 'selected' : '' %>>Lifestyle</option>
+          <option value="Education" <%= post.category === 'Education' ? 'selected' : '' %>>Education</option>
+          <option value="Health" <%= post.category === 'Health' ? 'selected' : '' %>>Health</option>
+          <option value="Travel" <%= post.category === 'Travel' ? 'selected' : '' %>>Travel</option>
+          <option value="Other" <%= post.category === 'Other' ? 'selected' : '' %>>Other</option>
+        </select>
+      </div>
+
+      <!-- Current Image -->
+      <% if (post.image) { %>
+        <div class="mb-3">
+          <label class="form-label">Current Image</label>
+          <div>
+            <img src="<%= post.image %>" alt="Current image" class="img-thumbnail" style="max-width: 200px;">
+          </div>
+        </div>
+      <% } %>
+
+      <!-- New Image -->
+      <div class="mb-3">
+        <label for="image" class="form-label"><%= post.image ? 'Replace Image' : 'Cover Image' %></label>
+        <input 
+          type="file" 
+          class="form-control" 
+          id="image" 
+          name="image" 
+          accept="image/jpeg,image/jpg,image/png,image/gif,image/webp,image/avif">
+        <small class="form-text text-muted">Leave empty to keep current image. Max file size: 5MB. Allowed formats: JPEG, PNG, GIF, WebP, AVIF</small>
+      </div>
+
+      <!-- Excerpt -->
+      <div class="mb-3">
+        <label for="excerpt" class="form-label">Excerpt (Optional)</label>
+        <textarea 
+          class="form-control" 
+          id="excerpt" 
+          name="excerpt" 
+          rows="3" 
+          placeholder="A short description of your post"
+          maxlength="300"><%= post.excerpt || '' %></textarea>
+        <small class="form-text text-muted">Brief summary (max 300 characters)</small>
+      </div>
+
+      <!-- Content -->
+      <div class="mb-3">
+        <label for="content" class="form-label">Blog Content</label>
+        <textarea 
+          class="form-control" 
+          id="content" 
+          name="content" 
+          rows="10" 
+          placeholder="Write your blog content here..."
+          required><%= post.content %></textarea>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-success flex-fill">Update Post</button>
+        <a href="/user/dashboard" class="btn btn-secondary flex-fill">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<%- include('element/footer')%>
+

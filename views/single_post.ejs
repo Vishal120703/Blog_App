@@ -2,53 +2,372 @@
 <%- include('element/navbar') %>
 
 <section class="container py-5">
-  <div class="card shadow-lg p-4 mx-auto" style="max-width: 800px;">
-    <% if (blog.image) { %>
-      <img src="<%= blog.image %>" class="img-fluid rounded mb-4" alt="Blog Image">
-    <% } %>
-    <h2 class="text-primary mb-3"><%= blog.title %></h2>
-    <p class="text-muted">By <%= blog.auther %> | <%= blog.date.toDateString() %></p>
-    <hr>
-    <p class="lead text-secondary"><%= blog.content %></p>
-  </div>
+  <div class="row">
+    <div class="col-lg-8">
+      <article class="card shadow-lg border-0 mb-4">
+        <% if (blog.image) { %>
+          <img src="<%= blog.image %>" class="card-img-top" alt="<%= blog.title %>" style="max-height: 500px; object-fit: cover;">
+        <% } %>
+        
+        <div class="card-body p-4">
+          <div class="mb-3">
+            <span class="badge bg-primary fs-6"><%= blog.category %></span>
+          </div>
+          
+          <h1 class="display-5 fw-bold mb-3"><%= blog.title %></h1>
+          
+          <div class="post-meta mb-4 pb-3 border-bottom">
+            <div class="d-flex flex-wrap align-items-center gap-3">
+              <div>
+                <i class="fas fa-user-circle text-primary me-2"></i>
+                <strong><a href="/profile/<%= blog.auther %>" class="text-decoration-none text-dark"><%= blog.auther %></a></strong>
+              </div>
+              <div>
+                <i class="far fa-calendar text-muted me-2"></i>
+                <%= new Date(blog.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+              </div>
+              <% 
+                const words = blog.content.split(' ').length;
+                const readingTime = Math.ceil(words / 200);
+              %>
+              <div class="reading-time">
+                <i class="far fa-clock text-muted me-2"></i>
+                <%= readingTime %> min read
+              </div>
+              <div>
+                <i class="fas fa-eye text-muted me-2"></i>
+                <%= blog.views || 0 %> views
+              </div>
+            </div>
+          </div>
+          
+          <div class="content-area" style="line-height: 1.8; font-size: 1.1rem; color: #333; position: relative;">
+            <% if (typeof isLoggedIn !== 'undefined' && isLoggedIn) { %>
+              <!-- Full content for logged-in users -->
+              <%= blog.content.split('\n').map(para => para.trim() ? `<p>${para}</p>` : '').join('') %>
+            <% } else { %>
+              <!-- Preview notice -->
+              <div class="alert alert-warning mb-3" style="background-color: #fef3c7; border-left: 4px solid #f59e0b;">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Preview Mode:</strong> You're viewing a preview of this article. 
+                <a href="/user/login" class="alert-link fw-bold">Login</a> or 
+                <a href="/user/signup" class="alert-link fw-bold">Sign Up</a> to read the full content.
+              </div>
+              
+              <!-- Preview for non-logged-in users -->
+              <% 
+                const previewLength = 600;
+                let preview = blog.content.substring(0, previewLength);
+                const hasMore = blog.content.length > previewLength;
+                
+                // Try to break at a sentence or paragraph boundary
+                if (hasMore) {
+                  const lastPeriod = preview.lastIndexOf('.');
+                  const lastNewline = preview.lastIndexOf('\n');
+                  const breakPoint = Math.max(lastPeriod, lastNewline);
+                  if (breakPoint > previewLength * 0.7) {
+                    preview = preview.substring(0, breakPoint + 1);
+                  }
+                }
+              %>
+              <div id="contentPreview">
+                <%= preview.split('\n').map(para => para.trim() ? `<p>${para}</p>` : '').join('') %>
+                <% if (hasMore) { %><p class="text-muted fst-italic">...</p><% } %>
+              </div>
+              
+              <!-- Login overlay for full content -->
+              <div id="contentOverlay" style="position: relative; margin-top: 2rem; padding: 2.5rem; background: linear-gradient(to bottom, rgba(255,255,255,0.98) 0%, rgba(255,255,255,1) 100%); border: 2px dashed #2563eb; border-radius: 8px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                <div style="margin-bottom: 1.5rem;">
+                  <i class="fas fa-lock fa-3x text-primary mb-3"></i>
+                </div>
+                <h4 class="mb-3" style="color: #1f2937;">Want to read the full article?</h4>
+                <p class="text-muted mb-4" style="font-size: 1.05rem;">Login or sign up to access the complete content and join our community of readers!</p>
+                <div class="d-flex gap-2 justify-content-center flex-wrap">
+                  <a href="/user/login" class="btn btn-primary btn-lg">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                  </a>
+                  <a href="/user/signup" class="btn btn-outline-primary btn-lg">
+                    <i class="fas fa-user-plus me-2"></i>Sign Up Free
+                  </a>
+                </div>
+                <p class="text-muted mt-3 mb-0" style="font-size: 0.9rem;">
+                  <i class="fas fa-check-circle text-success me-1"></i>Free to join • Takes less than a minute
+                </p>
+              </div>
+            <% } %>
+          </div>
+          
+          <div class="mt-4 pt-4 border-top">
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+              <% if (typeof user !== 'undefined' && user) { %>
+                <button 
+                  id="likeBtn" 
+                  data-id="<%= blog._id %>" 
+                  class="btn btn-lg <%= blog.likedBy && blog.likedBy.includes(user.username) ? 'btn-danger' : 'btn-outline-danger' %>">
+                  <% const isLiked = blog.likedBy && blog.likedBy.includes(user.username); %>
+                  <i class="fas fa-heart me-2"></i>
+                  <span id="likeCount"><%= blog.likes || 0 %></span> Likes
+                </button>
+                <button 
+                  id="bookmarkBtn" 
+                  data-id="<%= blog._id %>" 
+                  class="btn btn-lg <%= typeof isBookmarked !== 'undefined' && isBookmarked ? 'btn-warning' : 'btn-outline-warning' %>">
+                  <i class="fas fa-bookmark me-2"></i>
+                  <span id="bookmarkText"><%= typeof isBookmarked !== 'undefined' && isBookmarked ? 'Saved' : 'Save' %></span>
+                </button>
+              <% } else { %>
+                <a href="/user/login" class="btn btn-lg btn-outline-danger">
+                  <i class="far fa-heart me-2"></i>
+                  <span id="likeCount"><%= blog.likes || 0 %></span> Likes
+                </a>
+                <a href="/user/login" class="btn btn-lg btn-outline-warning">
+                  <i class="far fa-bookmark me-2"></i>Save
+                </a>
+                <small class="text-muted">Login to interact</small>
+              <% } %>
+              
+              <div class="ms-auto">
+                <a href="/" class="btn btn-outline-secondary">
+                  <i class="fas fa-arrow-left me-2"></i>Back to Posts
+                </a>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Reading Progress Bar -->
+          <% if (typeof isLoggedIn !== 'undefined' && isLoggedIn) { %>
+            <div id="readingProgress" style="position: fixed; top: 0; left: 0; height: 3px; background: #2563eb; z-index: 9999; transition: width 0.1s;"></div>
+          <% } %>
+        </div>
+      </article>
 
-  <button 
-  id="likeBtn" 
-  data-id="<%= blog._id %>" 
-  class="btn btn-outline-danger mt-3">
-  ❤️ Like(<span id="likeCount"><%= blog.likes %></span>)
-</button>
-
-  <!-- ✅ Comment Field -->
-  
-  <form id="commentForm" class="mt-4">
-  <div class="mb-3">
-    <textarea
-      name="comment"
-      id="comment"
-      class="form-control"
-      rows="3"
-      placeholder="Write your comment..."
-      required
-    ></textarea>
-  </div>
-  <button type="submit" class="btn btn-primary">Post Comment</button>
-</form>
-  
-  <div class="mt-5" id="commentsContainer" style="max-width: 800px;">
-  <h4 class="mb-3">Comments</h4>
-
-  <% blog.comments.forEach(comment => { %>
-    <div class="card p-3 mb-2 shadow-sm">
-      <strong><%= comment.user %></strong>
-      <p class="mb-1"><%= comment.text %></p>
+      <!-- Comments Section -->
+      <div class="card shadow-lg border-0">
+        <div class="card-header bg-white">
+          <h4 class="mb-0">
+            <i class="fas fa-comments text-primary me-2"></i>
+            Comments (<span id="commentCount"><%= blog.comments ? blog.comments.length : 0 %></span>)
+          </h4>
+        </div>
+        
+        <div class="card-body">
+          <% if (typeof user !== 'undefined' && user) { %>
+            <form id="commentForm" class="mb-4">
+              <div class="mb-3">
+                <label for="comment" class="form-label">Add a comment</label>
+                <textarea
+                  name="comment"
+                  id="comment"
+                  class="form-control"
+                  rows="4"
+                  placeholder="Share your thoughts..."
+                  required
+                ></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-paper-plane me-2"></i>Post Comment
+              </button>
+            </form>
+          <% } else { %>
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle me-2"></i>
+              Please <a href="/user/login" class="alert-link">login</a> to comment on this post.
+            </div>
+          <% } %>
+          
+          <div id="commentsContainer">
+            <% if (blog.comments && blog.comments.length > 0) { %>
+              <% blog.comments.forEach(comment => { %>
+                <div class="card mb-3 border-0 bg-light">
+                  <div class="card-body">
+                    <div class="d-flex align-items-start">
+                      <div class="flex-shrink-0">
+                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                          <i class="fas fa-user"></i>
+                        </div>
+                      </div>
+                      <div class="flex-grow-1 ms-3">
+                        <h6 class="mb-1 fw-bold"><%= comment.user %></h6>
+                        <% if (comment.date) { %>
+                          <small class="text-muted">
+                            <i class="far fa-clock me-1"></i>
+                            <%= new Date(comment.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %>
+                          </small>
+                        <% } %>
+                        <p class="mb-0 mt-2"><%= comment.text %></p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% }) %>
+            <% } else { %>
+              <div class="text-center py-5 text-muted">
+                <i class="fas fa-comments fa-3x mb-3 opacity-25"></i>
+                <p>No comments yet. Be the first to comment!</p>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Related Posts -->
+      <% if (typeof relatedPosts !== 'undefined' && relatedPosts.length > 0) { %>
+        <div class="blog-card mt-4">
+          <div class="blog-card-body">
+            <h4 class="mb-4">Related Posts</h4>
+            <div class="row">
+              <% relatedPosts.forEach(relatedPost => { %>
+                <div class="col-md-4 mb-3">
+                  <div class="border rounded p-3 h-100">
+                    <% if (relatedPost.image) { %>
+                      <img src="<%= relatedPost.image %>" alt="<%= relatedPost.title %>" class="img-fluid rounded mb-2" style="height: 120px; object-fit: cover; width: 100%;">
+                    <% } %>
+                    <h6 class="mb-2">
+                      <a href="/post/<%= relatedPost._id %>" class="text-decoration-none text-dark">
+                        <%= relatedPost.title %>
+                      </a>
+                    </h6>
+                    <div class="d-flex justify-content-between align-items-center text-muted small">
+                      <span><i class="fas fa-eye"></i> <%= relatedPost.views || 0 %></span>
+                      <span><i class="fas fa-heart text-danger"></i> <%= relatedPost.likes || 0 %></span>
+                    </div>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+          </div>
+        </div>
+      <% } %>
     </div>
-  <% }) %>
-</div>
+    
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+      <div class="sidebar-card sticky-top" style="top: 20px;">
+        <h5><i class="fas fa-info-circle me-2"></i>Post Information</h5>
+        <ul class="list-unstyled">
+          <li class="mb-3">
+            <strong>Category:</strong><br>
+            <span class="badge bg-primary"><%= blog.category %></span>
+          </li>
+          <li class="mb-3">
+            <strong>Author:</strong><br>
+            <a href="/profile/<%= blog.auther %>" class="text-decoration-none"><%= blog.auther %></a>
+          </li>
+          <li class="mb-3">
+            <strong>Published:</strong><br>
+            <%= new Date(blog.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+          </li>
+          <li class="mb-3">
+            <strong>Reading Time:</strong><br>
+            <%= readingTime %> minutes
+          </li>
+          <li class="mb-3">
+            <strong>Views:</strong><br>
+            <i class="fas fa-eye me-1"></i><%= blog.views || 0 %>
+          </li>
+          <li class="mb-3">
+            <strong>Likes:</strong><br>
+            <i class="fas fa-heart text-danger me-1"></i><%= blog.likes || 0 %>
+          </li>
+        </ul>
+        
+        <hr>
+        
+        <h6 class="mb-3"><i class="fas fa-share-alt me-2"></i>Share This Post</h6>
+        <div class="d-flex gap-2 flex-wrap">
+          <a href="https://twitter.com/intent/tweet?text=<%= encodeURIComponent(blog.title) %>&url=<%= encodeURIComponent('http://localhost:3000/post/' + blog._id) %>" 
+             target="_blank" 
+             class="btn btn-sm btn-outline-primary">
+            <i class="fab fa-twitter"></i> Twitter
+          </a>
+          <a href="https://www.facebook.com/sharer/sharer.php?u=<%= encodeURIComponent('http://localhost:3000/post/' + blog._id) %>" 
+             target="_blank" 
+             class="btn btn-sm btn-outline-primary">
+            <i class="fab fa-facebook"></i> Facebook
+          </a>
+          <a href="https://www.linkedin.com/sharing/share-offsite/?url=<%= encodeURIComponent('http://localhost:3000/post/' + blog._id) %>" 
+             target="_blank" 
+             class="btn btn-sm btn-outline-primary">
+            <i class="fab fa-linkedin"></i> LinkedIn
+          </a>
+          <button onclick="copyToClipboard()" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-link"></i> Copy Link
+          </button>
+        </div>
+      </div>
+      
+      <script>
+      function copyToClipboard() {
+          const url = window.location.href;
+          navigator.clipboard.writeText(url).then(() => {
+              alert('Link copied to clipboard!');
+          });
+      }
+      </script>
+    </div>
+  </div>
 </section>
+
+<% if (typeof user !== 'undefined' && user) { %>
 <script>
+// Reading Progress Indicator
+window.addEventListener('scroll', function() {
+    const progressBar = document.getElementById('readingProgress');
+    if (progressBar) {
+        const windowHeight = window.innerHeight;
+        const documentHeight = document.documentElement.scrollHeight;
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const scrollPercent = (scrollTop / (documentHeight - windowHeight)) * 100;
+        progressBar.style.width = scrollPercent + '%';
+    }
+});
+
+// Bookmark functionality
+document.getElementById("bookmarkBtn").addEventListener("click", async function() {
+    const postId = this.dataset.id;
+    const btn = this;
+    
+    btn.disabled = true;
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>...';
+
+    const res = await fetch(`/post/${postId}/bookmark`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+        if (data.bookmarked) {
+            btn.className = "btn btn-lg btn-warning";
+            btn.innerHTML = '<i class="fas fa-bookmark me-2"></i><span id="bookmarkText">Saved</span>';
+        } else {
+            btn.className = "btn btn-lg btn-outline-warning";
+            btn.innerHTML = '<i class="fas fa-bookmark me-2"></i><span id="bookmarkText">Save</span>';
+        }
+    } else {
+        if (data.message) {
+            alert(data.message);
+            if (data.message.includes("login")) {
+                window.location.href = "/user/login";
+            }
+        }
+        btn.innerHTML = originalHTML;
+    }
+    
+    btn.disabled = false;
+});
+
+// Like functionality
 document.getElementById("likeBtn").addEventListener("click", async function() {
     const postId = this.dataset.id;
+    const btn = this;
+    
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Loading...';
 
     const res = await fetch(`/post/${postId}/like`, {
         method: "POST",
@@ -60,24 +379,42 @@ document.getElementById("likeBtn").addEventListener("click", async function() {
     const data = await res.json();
 
     if (data.success) {
-        // Update like count instantly
         document.getElementById("likeCount").innerText = data.likes;
-
-        // Change button text
+        
         if (data.liked) {
-            this.innerHTML = `❤️ Liked (<span id="likeCount">${data.likes}</span>)`;
+            btn.className = "btn btn-lg btn-danger";
+            btn.innerHTML = '<i class="fas fa-heart me-2"></i><span id="likeCount">' + data.likes + '</span> Likes';
         } else {
-            this.innerHTML = `🤍 Like (<span id="likeCount">${data.likes}</span>)`;
+            btn.className = "btn btn-lg btn-outline-danger";
+            btn.innerHTML = '<i class="fas fa-heart me-2"></i><span id="likeCount">' + data.likes + '</span> Likes';
+        }
+    } else {
+        if (data.message) {
+            alert(data.message);
+            if (data.message.includes("login")) {
+                window.location.href = "/user/login";
+            }
         }
     }
+    
+    btn.disabled = false;
 });
-</script>
-<script>
-document.getElementById("commentForm").addEventListener("submit", async function (e) {
-    e.preventDefault(); // stop page reload
 
-    const comment = document.getElementById("comment").value;
+document.getElementById("commentForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    
+    const comment = document.getElementById("comment").value.trim();
     const postId = "<%= blog._id %>";
+    const form = this;
+    const submitBtn = form.querySelector('button[type="submit"]');
+    
+    if (!comment) {
+        alert("Please enter a comment");
+        return;
+    }
+    
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Posting...';
 
     const res = await fetch(`/post/${postId}/comment`, {
         method: "POST",
@@ -90,23 +427,60 @@ document.getElementById("commentForm").addEventListener("submit", async function
     const data = await res.json();
 
     if (data.success) {
-        // Add new comment instantly to DOM
         const container = document.getElementById("commentsContainer");
-
+        const commentCount = document.getElementById("commentCount");
+        
+        // Remove "no comments" message if exists
+        const noCommentsMsg = container.querySelector('.text-center');
+        if (noCommentsMsg) {
+            noCommentsMsg.remove();
+        }
+        
+        const date = new Date(data.comment.date).toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'short', 
+            day: 'numeric', 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
+        
         const newCommentHTML = `
-            <div class="card p-3 mb-2 shadow-sm">
-                <strong>${data.comment.user}</strong>
-                <p class="mb-1">${data.comment.text}</p>
+            <div class="card mb-3 border-0 bg-light">
+                <div class="card-body">
+                    <div class="d-flex align-items-start">
+                        <div class="flex-shrink-0">
+                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-1 fw-bold">${data.comment.user}</h6>
+                            <small class="text-muted">
+                                <i class="far fa-clock me-1"></i>${date}
+                            </small>
+                            <p class="mb-0 mt-2">${data.comment.text}</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         `;
-
-        container.innerHTML += newCommentHTML;
-
-        // Clear textarea
+        
+        container.insertAdjacentHTML('afterbegin', newCommentHTML);
+        commentCount.innerText = parseInt(commentCount.innerText) + 1;
         document.getElementById("comment").value = "";
+    } else {
+        if (data.message) {
+            alert(data.message);
+            if (data.message.includes("login")) {
+                window.location.href = "/user/login";
+            }
+        }
     }
+    
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Post Comment';
 });
 </script>
-
+<% } %>
 
 <%- include('element/footer') %>
